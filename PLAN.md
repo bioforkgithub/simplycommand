@@ -1,6 +1,9 @@
 # simplycommand: design plan
 
-*Status: version 0.3.0: everything subprocess can do, plus files, terminals, limits, remote, containers and conda; 115 tests: all 109 that apply to Windows pass there, all 112 that apply to Linux pass there. Not yet on GitHub or PyPI.*
+*Status on 2026-11-16: version 0.3.0, on GitHub (bioforkgithub/simplycommand, public), not yet on PyPI.
+Marketed first as the way to make command-line programs, second as a way to run other programs.
+130 tests; all that apply pass on Windows (local), Linux (WSL Ubuntu, Python 3.14) and in GitHub CI
+(Windows, Linux, macOS; Python 3.10 to 3.13). More changes are planned at the next meeting (see section 4).*
 
 ## 1. The idea
 
@@ -65,14 +68,39 @@ False/None leaves it out, a list repeats it, a trailing `_` allows Python words 
       `defaults_file` (JSON or TOML), tab completion through the `completion` extra
 - [x] tested on Windows (109 pass, 6 are Linux-only) and on Linux (Ubuntu in WSL, Python 3.14: 112 pass, 3 are Windows-only); CI file for Windows, macOS, Linux
 
-### Still open
-- [ ] run the CI on macOS (the code follows Python's documented macOS behaviour, but it has not been run there)
-- [ ] test `set_computer`, `send_files_to` and `use_container` against a real server and Docker
-      (the command words are tested; the tools themselves are ssh, scp, rsync and docker)
-- [ ] `run_as_administrator` on Windows shows the UAC prompt, so it cannot run in automatic tests
-- [ ] old names keep working for one release with a one-line note, once something is renamed
+### Done after 0.3.0 (same day)
+- [x] GitHub repository, public, commits as bioforkgithub; CI on Windows, macOS and Linux, Python 3.10 to 3.13
+- [x] CI found and we fixed: Windows link paths (`\\?\`), macOS has no memory limit (now said plainly),
+      a program stopped by a closed pipe (`zcat x | head`) counts as worked, as in the shell
+- [x] README, descriptions and lesson 1 lead with making command-line programs
+- [x] six general step-by-step examples in `examples/` (field-specific examples go in the manual as projects),
+      run by `tests/test_examples.py`
 
-### Release
-- [ ] GitHub repository, CI on Windows, macOS and Linux, Python 3.10 to 3.13
-- [ ] PyPI release (check the name `simplycommand` is free first)
-- [ ] a manual and dictionary built from the code, as in simplydata
+## 4. Open list (for the next meeting)
+
+### A. Built, but never run against the real thing (only the command words are tested)
+- [ ] `set_computer`, `send_files_to`, `get_files_from` against a real ssh server
+- [ ] `use_container` with Docker running (Docker Desktop is installed here) and Apptainer
+- [ ] `use_conda_environment` with a real conda install
+- [ ] `run_as_administrator` (Windows UAC prompt, sudo password) and `run_as_user` / `set_owner` (need root)
+- [ ] tab completion through `argcomplete`; TOML defaults files (only JSON is tested)
+
+### B. argparse power without a simple word yet
+- [ ] a word typed in order that has a default (a folder that defaults to "."); found while writing the examples
+- [ ] an option that takes exactly N values (`--size 800 600`)
+- [ ] counting switches (`-vvv`)
+- [ ] short alternative names for commands (aliases)
+- [ ] an "Examples" part at the end of `--help` (epilog)
+- [ ] "-" meaning standard input or output
+
+### C. Rough edges
+- [ ] Windows pseudo-terminal output keeps terminal control codes; strip them
+- [ ] a pseudo-terminal cannot be resized
+- [ ] old names keep working for one release with a one-line note (as in simplydata), once something is renamed
+
+### D. Release
+- [ ] PyPI release (on 2026-11-16 the names `simplycommand` and `simply-command` were free on PyPI; on GitHub
+      only an unrelated Arduino library, theBoss12kS/SimplyCommand, has the name)
+- [ ] a manual and dictionary built from the code, as in simplydata, with field-specific projects
+      (sequence files, alignment tools, pipelines)
+- [ ] `CITATION.cff`; the IMR affiliation is added in the paper at publication time
