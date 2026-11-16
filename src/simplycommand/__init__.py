@@ -1,4 +1,4 @@
-"""simplycommand: simple words for the command line in Python.
+"""simplycommand: make command-line programs in Python with simple words, and run other programs.
 
     import simplycommand as scmd
 

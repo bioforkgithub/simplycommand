@@ -161,7 +161,52 @@ def help(word: str | None = None) -> None:  # noqa: A001  (the word people expec
 
 
 LESSONS = [
-    ("Your first command", """
+    ("Make your own command-line program", """
+A function is already a command-line program:
+
+    import simplycommand as scmd
+
+    def hello(name: str, times: int = 1, shout: bool = False):
+        \"\"\"Say hello to someone.
+        times (-t): how many times to say it
+        \"\"\"
+        text = f"Hello, {name}!"
+        return [text.upper() if shout else text] * times
+
+    if __name__ == "__main__":
+        scmd.make_command_line_program(hello)
+
+    $ python hello.py Ann --times 2 --shout
+    $ python hello.py --help
+
+A word without a default is typed in order (Ann), a word with a default is an option
+(--times 2), a default of False makes a switch (--shout), and the docstring is the help.
+
+A class is a program with several commands, one per method:
+
+    class ToDo(scmd.CommandLineProgram):
+        \"\"\"A small to-do list.\"\"\"
+        version = "1.0"
+
+        def add(self, task: str, important: bool = False):
+            \"\"\"Add a task.\"\"\"
+            ...
+
+        def show(self, all: bool = False):
+            \"\"\"Show the tasks.\"\"\"
+            ...
+
+    if __name__ == "__main__":
+        ToDo.start_from_command_line()
+
+    $ python todo.py add "Buy milk" --important
+    $ python todo.py show --all
+
+The examples folder goes step by step from here to a complete program.
+
+Try it yourself: make a program with one command that adds two numbers.
+"""),
+    ("Run another program", """
 A program is an object. You make it once, then ask it to run.
 
     import simplycommand as scmd
@@ -263,34 +308,6 @@ Give a tool the words of your own work, and hide its options inside:
     samtools = Samtools()
     samtools.sort_file("reads.bam", into="sorted.bam")
     samtools.count_reads("sorted.bam")
-"""),
-    ("Make your own command-line program", """
-Write a class; each method becomes a command, typed in the terminal:
-
-    class Sequences(scmd.CommandLineProgram):
-        \"\"\"Small tools for FASTA files.\"\"\"
-
-        def count(self, fasta: str, min_length: int = 0):
-            \"\"\"Count the sequences in a FASTA file.
-            fasta: the file to read
-            min_length: only count sequences at least this long
-            \"\"\"
-            ...
-
-    if __name__ == "__main__":
-        Sequences().start_from_command_line()
-
-    $ python seqs.py count genes.fa --min-length 100
-    $ python seqs.py --help
-
-Arguments without a default are given in order, arguments with a default become options,
-and a default of False makes a switch. One plain function works too:
-scmd.make_command_line_program(my_function).
-
-More: "min_length (-m): ..." in the docstring gives a short letter, Literal["a", "b"]
-lists the allowed choices, version = "1.0" adds --version, and the arguments of
-__init__ become options for every command when you start it from the class:
-Sequences.start_from_command_line().
 """),
     ("Watch, talk and judge", """
     grep = scmd.program("grep").accept_exit_codes(0, 1)   # 1 only means "nothing found"

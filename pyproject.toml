@@ -5,13 +5,13 @@ build-backend = "hatchling.build"
 [project]
 name = "simplycommand"
 dynamic = ["version"]
-description = "Simple words for running command-line programs from Python, and for making your own, built on subprocess and argparse."
+description = "Make command-line programs in Python with simple words: commands, options, help, prompts and progress from a function or class, plus running other programs. Built on argparse and subprocess."
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 requires-python = ">=3.10"
 authors = [{ name = "Manish Prakash Victor" }]
-keywords = ["command line", "subprocess", "shell", "cli", "pipeline", "bioinformatics", "education"]
+keywords = ["command line", "command-line program", "cli", "argparse", "command line interface", "subprocess", "shell", "terminal", "education"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Education",
@@ -19,6 +19,8 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
+    "Environment :: Console",
+    "Topic :: Software Development :: User Interfaces",
     "Topic :: System :: Shells",
     "Topic :: Utilities",
 ]

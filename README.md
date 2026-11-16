@@ -1,13 +1,75 @@
 # simplycommand
 
-**Simple words for running command-line programs from Python, and for making your own.**
-A program is an object: you build it up step by step, look at it, run it, and get back a
-result that says in one sentence what happened. `subprocess` and `argparse` do the work
-underneath; there are no other dependencies.
+**Make command-line programs in Python, with simple words.**
+Write a function or a class; simplycommand turns it into a command-line program with
+commands, options, switches, `--help` and `--version`, friendly error messages, questions,
+progress bars and colour. Its other half runs command-line programs from Python as
+objects. `argparse` and `subprocess` do the work underneath; there are no other dependencies.
 
 ```python
 import simplycommand as scmd
 
+def hello(name: str, times: int = 1, shout: bool = False):
+    """Say hello to someone.
+    times (-t): how many times to say it
+    """
+    text = f"Hello, {name}!"
+    return [text.upper() if shout else text] * times
+
+if __name__ == "__main__":
+    scmd.make_command_line_program(hello)
+```
+
+```
+$ python hello.py Ann --times 2 --shout
+HELLO, ANN!
+HELLO, ANN!
+$ python hello.py --help
+```
+
+A class with several methods is a program with several commands; a class inside it is a group
+of commands. Six step-by-step examples, from this one to a complete program, are in
+[examples/](examples/README.md).
+
+Install (from this folder, until it is on PyPI): `pip install -e .`
+
+## Make your own command-line program
+
+| You write | In the terminal |
+|---|---|
+| `name: str` (no default) | a word given in order: `Ann` |
+| `times: int = 1` | an option: `--times 3` |
+| `shout: bool = False` | a switch: `--shout` |
+| `colour: bool = True` | `--no-colour` |
+| `files: list[Path]` | many words: `a.txt b.txt` |
+| `sort: Literal["count", "word"]` | only these choices |
+| `top: int \| None = None` | an option you may leave out |
+| `"times (-t): ..."` in the docstring | the short letter `-t` and the help text |
+| a method of a class | a command: `python todo.py add "Buy milk"` |
+| a class inside the class | a group: `python helper.py folder size .` |
+| the arguments of `__init__` | options for every command |
+| `version = "1.0"` | `--version` |
+| `only_one_of = [("json", "table")]` | options that cannot be given together |
+| `environment_prefix = "TODO_"` | `TODO_TIMES=3` sets `--times` |
+| `defaults_file = "~/.todo.json"` | defaults from a JSON or TOML file |
+| `raise scmd.SimplyCommandError("...")` | a plain message, no traceback |
+
+Talk to the person at the terminal:
+
+```python
+name = scmd.ask("Your name", default="friend")
+if scmd.ask_yes_or_no("Remove every task?", default=False): ...
+language = scmd.ask_to_choose("Which language?", ["English", "Norwegian"])
+for item in scmd.show_progress(items, label="Working"): ...
+scmd.write_in_colour("Done", "green")
+```
+
+## Run other command-line programs
+
+A program is an object: you build it up step by step, look at it, run it, and get back a
+result that says in one sentence what happened.
+
+```python
 samtools = scmd.program("samtools")
 result = samtools.run("sort", "reads.bam", o="sorted.bam", threads=4)
 # runs: samtools sort reads.bam -o sorted.bam --threads 4
@@ -143,35 +205,6 @@ class Samtools(scmd.Program):
     def count_reads(self, bam):
         return int(self.run("view", "-c", bam).output)
 ```
-
-## Make your own command-line program
-
-```python
-class Sequences(scmd.CommandLineProgram):
-    """Small tools for FASTA files."""
-
-    def count(self, fasta: str, min_length: int = 0):
-        """Count the sequences in a FASTA file.
-        fasta: the file to read
-        min_length: only count sequences at least this long
-        """
-        ...
-
-if __name__ == "__main__":
-    Sequences().start_from_command_line()
-```
-
-```
-$ python seqs.py count genes.fa --min-length 100
-$ python seqs.py --help
-```
-
-Each method is a command; arguments without a default are given in order, arguments with a
-default become options, and a default of `False` makes a switch. `"min_length (-m): ..."` in a
-docstring gives a short letter, `Literal["a", "b"]` gives choices, `version = "1.0"` adds
-`--version`, and the arguments of `__init__` become options for every command when started from
-the class: `Sequences.start_from_command_line()`. A plain function works too:
-`scmd.make_command_line_program(my_function)`. See `examples/`.
 
 ## Learn it
 
