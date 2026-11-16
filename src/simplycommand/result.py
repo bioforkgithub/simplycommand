@@ -45,8 +45,11 @@ class Result:
     @property
     def worked(self) -> bool:
         """True when every program in the command ended well (exit code 0, or a code you accepted)."""
-        return (self.stopped is None and bool(self.exit_codes)
-                and all(code in self.accepted_codes for code in self.exit_codes))
+        if self.stopped is not None or not self.exit_codes:
+            return False
+        last = len(self.exit_codes) - 1
+        return all(code in self.accepted_codes or (i < last and _stopped_by_closed_pipe(code))
+                   for i, code in enumerate(self.exit_codes))
 
     def describe_exit(self) -> str:
         """How the command ended, in words: "exit code 2", or "stopped by signal SIGKILL" on Linux and macOS."""
@@ -163,6 +166,15 @@ class Result:
         if name.startswith("_"):
             raise AttributeError(name)
         raise missing_word_error("result", name, own_words(self))
+
+
+def _stopped_by_closed_pipe(code: int) -> bool:
+    """True when an earlier program in a pipe was stopped because a later one stopped reading
+    (zcat big.gz | head): the shell counts that as normal, and so does simplycommand."""
+    import signal
+
+    pipe = getattr(signal, "SIGPIPE", None)
+    return pipe is not None and code in (-pipe, 128 + pipe)
 
 
 def _write(file_name, text: str) -> None:

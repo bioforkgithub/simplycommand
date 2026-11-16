@@ -67,7 +67,18 @@ def test_usage_is_measured():
     assert result.peak_memory_mb is not None and result.peak_memory_mb >= 50
 
 
+@posix_only
+def test_closed_pipe_is_normal():
+    # yes writes for ever; head stops after one line, so yes is stopped by a closed pipe, as in the shell
+    result = (scmd.program("yes") | scmd.program("head", "-n", "1")).run()
+    assert result.worked and result.output == "y\n"
+
+
 def test_memory_limit():
+    if sys.platform == "darwin":
+        with pytest.raises(scmd.SimplyCommandError, match="macOS"):
+            python("pass").set_memory_limit(150).run()
+        return
     result = (python("x = bytearray(400 * 1024 * 1024); print('got it')")
               .set_memory_limit(150).keep_going_if_it_fails().run())
     assert not result.worked and "got it" not in result.output
@@ -153,6 +164,7 @@ def test_pseudo_terminal_is_for_one_program():
 
 
 # ================================================================ the rest of Popen
+@pytest.mark.skipif(sys.platform == "darwin", reason="macOS Python is a launcher that starts Python again")
 def test_use_program_file():
     # the base interpreter: a venv's python.exe on Windows is a launcher that starts Python again
     real = getattr(sys, "_base_executable", PY) if ON_WINDOWS else PY

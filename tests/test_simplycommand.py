@@ -198,7 +198,8 @@ def test_pipeline():
 
 
 def test_pipeline_failure_in_the_middle():
-    pipe = python("print('x')") | python("import sys; sys.exit(4)") | python("print('end')")
+    # the middle program reads everything first, so the first one never meets a closed pipe
+    pipe = python("print('x')") | python("import sys; sys.stdin.read(); sys.exit(4)") | python("print('end')")
     result = pipe.keep_going_if_it_fails().run()
     assert not result.worked and result.exit_codes == [0, 4, 0]
 

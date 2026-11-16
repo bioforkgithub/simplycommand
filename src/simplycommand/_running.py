@@ -193,6 +193,9 @@ def _popen_settings(plan: Plan, *, new_session: bool, pty_slave=None) -> dict:
         if plan.pass_fds:
             extra["pass_fds"] = tuple(plan.pass_fds)
         steps = []
+        if plan.memory_limit_mb and sys.platform == "darwin":
+            raise SimplyCommandError("macOS does not let one program limit another's memory, so set_memory_limit "
+                                     "cannot work here. set_cpu_time_limit and set_time_limit do work.")
         if plan.memory_limit_mb or plan.cpu_limit_seconds:
             memory, cpu = plan.memory_limit_mb, plan.cpu_limit_seconds
 

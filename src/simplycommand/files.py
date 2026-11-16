@@ -316,6 +316,8 @@ def find_where_link_points(link) -> str:
     if not path.is_symlink():
         raise SimplyCommandError(f'"{path}" is not a link.')
     target = os.readlink(path)
+    if target.startswith("\\\\?\\"):  # Windows writes long-path links with this prefix
+        target = target[4:]
     print(f'"{path}" points to "{target}".')
     return target
 
