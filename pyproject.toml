@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "simplycommand"
+dynamic = ["version"]
+description = "Simple words for running command-line programs from Python, and for making your own, built on subprocess and argparse."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [{ name = "Manish Prakash Victor" }]
+keywords = ["command line", "subprocess", "shell", "cli", "pipeline", "bioinformatics", "education"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: System :: Shells",
+    "Topic :: Utilities",
+]
+dependencies = []  # only the Python standard library: subprocess, argparse, shutil, shlex
+
+[project.optional-dependencies]
+terminal = ["pywinpty>=2.0; sys_platform == 'win32'"]   # a pseudo-terminal on Windows (Linux and macOS need nothing)
+completion = ["argcomplete>=3.0"]                        # tab completion for your own command-line programs
+test = ["pytest>=7"]
+
+[tool.hatch.version]
+path = "src/simplycommand/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/simplycommand"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
